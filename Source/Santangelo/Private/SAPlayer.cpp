@@ -4,21 +4,24 @@
 #include "SAPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
+#include "StaminaComponent.h"
+#include "HealthComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
 // Sets default values
-ASAPlayer::ASAPlayer()
+ASAPlayer::ASAPlayer() :
+	BaseTurnRate(45.0f)
+	, BaseLookUpRate(45.0f)
+	, DodgeStrength(1000.0f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
-
-	// set our turn rates for input
-	BaseTurnRate = 45.f;
-	BaseLookUpRate = 45.f;
 
 	// Create a CameraComponent	
 	FPCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
@@ -34,6 +37,22 @@ ASAPlayer::ASAPlayer()
 	ArmsMeshFP->CastShadow = false;
 	ArmsMeshFP->SetRelativeRotation(FRotator(1.9f, -19.19f, 5.2f));
 	ArmsMeshFP->SetRelativeLocation(FVector(-0.5f, -4.4f, -155.7f));
+
+
+	UCharacterMovementComponent* moveComp = GetCharacterMovement();
+	BaseWalkSpeed = moveComp->MaxWalkSpeed;
+	//moveComp->bOrientRotationToMovement = true;
+	//moveComp->AirControl = 0.1f;
+	//moveComp->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
+
+
+	StaminaComp = CreateDefaultSubobject<UStaminaComponent>(TEXT("StaminaComp"));
+
+	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+}
+
+ASAPlayer::~ASAPlayer()
+{
 
 }
 
@@ -60,8 +79,15 @@ void ASAPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	// Bind jump events
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASAPlayer::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ASAPlayer::StopJumping);
+
+	//Sprint
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, StaminaComp, &UStaminaComponent::Sprint);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, StaminaComp, &UStaminaComponent::StopSprinting);
+
+	//dodging
+	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &ASAPlayer::Dodge);
 
 	// Bind movement events
 	PlayerInputComponent->BindAxis("MoveForward", this, &ASAPlayer::MoveForward);
@@ -74,14 +100,24 @@ void ASAPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("TurnRate", this, &ASAPlayer::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ASAPlayer::LookUpAtRate);
-
 }
 
 void ASAPlayer::MoveForward(float Val)
 {
 	if (Val != 0.0f)
 	{
+		UCharacterMovementComponent* moveComp = GetCharacterMovement();
+		if (StaminaComp->IsSprinting())
+		{
+			moveComp->MaxWalkSpeed = BaseWalkSpeed * SprintMult;
+		}
+		else if(moveComp->MaxWalkSpeed != BaseWalkSpeed)
+		{
+			moveComp->MaxWalkSpeed = BaseWalkSpeed;
+		}
+
 		// add movement in that direction
+		//scale the Val for sprinting
 		AddMovementInput(GetActorForwardVector(), Val);
 	}
 }
@@ -90,9 +126,72 @@ void ASAPlayer::MoveRight(float Val)
 {
 	if (Val != 0.0f)
 	{
+		UCharacterMovementComponent* moveComp = GetCharacterMovement();
+		if (StaminaComp->IsSprinting())
+		{
+			moveComp->MaxWalkSpeed = BaseWalkSpeed * SprintMult;
+		}
+		else if (moveComp->MaxWalkSpeed != BaseWalkSpeed)
+		{
+			moveComp->MaxWalkSpeed = BaseWalkSpeed;
+		}
+
 		// add movement in that direction
+		//scale the Val for sprinting
 		AddMovementInput(GetActorRightVector(), Val);
 	}
+}
+
+void ASAPlayer::Jump()
+{
+	//only jump if stamina says we can
+	if (StaminaComp->Jump())
+	{
+		Super::Jump();
+	}
+}
+
+void ASAPlayer::StopJumping()
+{
+	Super::StopJumping();
+}
+
+void ASAPlayer::Dodge()
+{
+	//Check if we're on the ground or on cooldown
+	if (GetCharacterMovement()->IsFalling() || GetWorld()->GetTimerManager().IsTimerActive(DodgeCooldownHandle))
+	{
+		return;
+	}
+
+	//check if we have stamina
+	if (StaminaComp->Dodge() == false) //if it returns true the stamina will already be consumed
+	{
+		return;
+	}
+
+	//consume stamina (stamina can go negative)
+
+	FVector V = GetVelocity();
+
+	if (V.IsZero())
+	{
+		//this will be used to invert the forward vector if we are standing still
+		//needs -dodgestrength instead of just like -1 otherwise its too weak
+		V = GetActorForwardVector() * -DodgeStrength;
+
+		FVector forward = GetActorForwardVector();
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("forward: %f, %f, %f"), forward.X, forward.Y, forward.Z));
+
+	}
+
+	V *= DodgeStrength;
+
+	//add impulse
+	GetCharacterMovement()->AddImpulse(V);
+
+	//start cooldown (should cooldown be linked to animation? Should cooldown be related to weight?)
+	GetWorld()->GetTimerManager().SetTimer(DodgeCooldownHandle, nullptr, DodgeCooldown, false);
 }
 
 void ASAPlayer::TurnAtRate(float Rate)
