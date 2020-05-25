@@ -127,9 +127,13 @@ void ASAPlayer::MoveRight(float Val)
 	if (Val != 0.0f)
 	{
 		UCharacterMovementComponent* moveComp = GetCharacterMovement();
-		if (StaminaComp->IsSprinting())
+		if (StaminaComp->IsSprinting() && StaminaComp->IsStaminaDepleted() == false)
 		{
 			moveComp->MaxWalkSpeed = BaseWalkSpeed * SprintMult;
+		}
+		else if (StaminaComp->IsSprinting() && StaminaComp->IsStaminaDepleted() == true)
+		{
+			moveComp->MaxWalkSpeed = BaseWalkSpeed * (SprintMult * 0.75);
 		}
 		else if (moveComp->MaxWalkSpeed != BaseWalkSpeed)
 		{
@@ -164,28 +168,32 @@ void ASAPlayer::Dodge()
 		return;
 	}
 
-	//check if we have stamina
-	if (StaminaComp->Dodge() == false) //if it returns true the stamina will already be consumed
-	{
-		return;
-	}
+	//check if we have stamina, if not make it a weaker dodge
+	bool hasEnoughStamina = StaminaComp->Dodge();
 
 	//consume stamina (stamina can go negative)
 
 	FVector V = GetVelocity();
 
+	float currentDodgeStrength = DodgeStrength;
+
+	if (hasEnoughStamina == false)
+	{
+		currentDodgeStrength *= 0.75f;
+	}
+
 	if (V.IsZero())
 	{
 		//this will be used to invert the forward vector if we are standing still
 		//needs -dodgestrength instead of just like -1 otherwise its too weak
-		V = GetActorForwardVector() * -DodgeStrength;
+		V = GetActorForwardVector() * -currentDodgeStrength;
 
 		FVector forward = GetActorForwardVector();
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("forward: %f, %f, %f"), forward.X, forward.Y, forward.Z));
+		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString::Printf(TEXT("forward: %f, %f, %f"), forward.X, forward.Y, forward.Z));
 
 	}
 
-	V *= DodgeStrength;
+	V *= currentDodgeStrength;
 
 	//add impulse
 	GetCharacterMovement()->AddImpulse(V);

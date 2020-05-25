@@ -43,18 +43,6 @@ bool UStaminaComponent::CheckAndConsumeStamina(float cost)
 	}
 }
 
-bool UStaminaComponent::CheckStamina(float cost)
-{
-	if (HasEnoughStamina(cost))
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
 //returns false if stamina has run out
 bool UStaminaComponent::IsStaminaDepleted()
 {
@@ -76,7 +64,7 @@ void UStaminaComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	//consume stamina if sprinting
 	if (m_IsSprinting)
 	{
-		CheckAndConsumeStamina(GetCostAfterWeight(BaseSprintCostPerSecond * DeltaTime));
+		UseStamina(GetCostAfterWeight(BaseSprintCostPerSecond * DeltaTime));
 		//GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Sprinting")));
 
 	}
@@ -84,7 +72,7 @@ void UStaminaComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	if (IsStaminaDepleted())
 	{
 		//turn off any progressive stamina users (sprint for example)
-		StopSprinting();
+		//StopSprinting();
 	}
 
 	//regen stamina
@@ -107,10 +95,14 @@ void UStaminaComponent::ChangeEquipment(UBaseEquipment* oldEquip, UBaseEquipment
 	}
 }
 
-void UStaminaComponent::UseStamina(float amount)
+bool UStaminaComponent::UseStamina(float amount)
 {
-	CurrentStamina -= amount;
+	bool hasEnough = HasEnoughStamina(amount);
+
+	CurrentStamina = FMath::Clamp(CurrentStamina - amount, 0.0f, MaxStamina);
 	GetWorld()->GetTimerManager().SetTimer(RegenDelayHandle, nullptr, RegenDelay, false);
+
+	return hasEnough;
 }
 
 float UStaminaComponent::GetCurrentRegenRate()
@@ -130,12 +122,13 @@ bool UStaminaComponent::StartSprinting()
 
 bool UStaminaComponent::Dodge()
 {
-	return CheckAndConsumeStamina(GetCostAfterWeight(BaseDodgeCost));
+	return UseStamina(GetCostAfterWeight(BaseDodgeCost));
 }
 
 void UStaminaComponent::Sprint()
 {
-	if (CheckStamina(GetCostAfterWeight(BaseDodgeCost)))
+	//if (CheckStamina(GetCostAfterWeight(BaseDodgeCost)))
+	if(m_IsSprinting == false)
 	{
 		m_IsSprinting = true;
 	}

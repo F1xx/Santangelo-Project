@@ -22,10 +22,6 @@ protected:
 	float GetCostAfterWeight(float baseCost);
 
 	bool CheckAndConsumeStamina(float cost);
-	bool CheckStamina(float cost);
-
-	bool IsStaminaDepleted();
-
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -42,7 +38,7 @@ public:
 		FORCEINLINE float GetCurrentStamina() { return CurrentStamina; }
 	UFUNCTION(BlueprintCallable)
 		FORCEINLINE float GetStaminaPercent() { return CurrentStamina / MaxStamina; }
-	void UseStamina(float amount);
+	bool UseStamina(float amount);
 
 	float GetCurrentRegenRate();
 
@@ -58,6 +54,8 @@ public:
 
 	//returns true if there is enough stamina to do what is needed.
 	bool HasEnoughStamina(float amountNeeded);
+
+	bool IsStaminaDepleted();
 
 protected:
 	float MaxStamina = 100.0f;
