@@ -4,6 +4,9 @@
 #include "Components/ActorComponent.h"
 #include "HealthComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDamageDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeathDelegate);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SANTANGELO_API UHealthComponent : public UActorComponent
 {
@@ -34,6 +37,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 		FORCEINLINE bool IsAlive() { return CurrentHealth > 0.0f; }
 
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+		FDamageDelegate OnDamageDelegate;
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+		FDeathDelegate OnDeathDelegate;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = Health)
 		float CurrentHealth;
@@ -46,6 +54,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
 		float RegenPerSecond = 2.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
+		bool CanRegen = true;
 
 	FTimerHandle RegenDelayHandle;
 };

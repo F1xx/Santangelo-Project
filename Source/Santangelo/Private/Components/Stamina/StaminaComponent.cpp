@@ -1,17 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "StaminaComponent.h"
-#include "BaseEquipment.h"
+#include "Components/Stamina/StaminaComponent.h"
+#include "Equipment/BaseEquipment.h"
 
 // Sets default values for this component's properties
 UStaminaComponent::UStaminaComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
@@ -19,9 +15,6 @@ UStaminaComponent::UStaminaComponent()
 void UStaminaComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
 }
 
 
@@ -54,8 +47,6 @@ bool UStaminaComponent::IsStaminaDepleted()
 	return false;
 }
 
-
-
 // Called every frame
 void UStaminaComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -66,7 +57,6 @@ void UStaminaComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	{
 		UseStamina(GetCostAfterWeight(BaseSprintCostPerSecond * DeltaTime));
 		//GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Sprinting")));
-
 	}
 
 	if (IsStaminaDepleted())
@@ -98,6 +88,8 @@ void UStaminaComponent::ChangeEquipment(UBaseEquipment* oldEquip, UBaseEquipment
 bool UStaminaComponent::UseStamina(float amount)
 {
 	bool hasEnough = HasEnoughStamina(amount);
+
+	//check debuffs?
 
 	CurrentStamina = FMath::Clamp(CurrentStamina - amount, 0.0f, MaxStamina);
 	GetWorld()->GetTimerManager().SetTimer(RegenDelayHandle, nullptr, RegenDelay, false);

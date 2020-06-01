@@ -1,13 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SAPlayer.h"
+#include "Characters/SAPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#include "StaminaComponent.h"
-#include "HealthComponent.h"
+#include "Components/Stamina/StaminaComponent.h"
+#include "Components/Health/HealthComponent.h"
+#include "Components/BuffDebuffSystem.h"
+#include "Components/Effect.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -49,6 +51,8 @@ ASAPlayer::ASAPlayer() :
 	StaminaComp = CreateDefaultSubobject<UStaminaComponent>(TEXT("StaminaComp"));
 
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
+	EffectSystem = CreateDefaultSubobject<UBuffDebuffSystem>(TEXT("EffectSystem"));
 }
 
 ASAPlayer::~ASAPlayer()
@@ -151,6 +155,9 @@ void ASAPlayer::Jump()
 	//only jump if stamina says we can
 	if (StaminaComp->Jump())
 	{
+		
+		EffectSystem->QueueForAddition(DuplicateObject(effecttoadd->GetDefaultObject<UEffect>(), EffectSystem, "Effect"));
+
 		Super::Jump();
 	}
 }

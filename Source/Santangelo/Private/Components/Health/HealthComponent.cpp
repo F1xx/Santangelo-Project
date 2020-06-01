@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "HealthComponent.h"
+#include "Components/Health/HealthComponent.h"
 #include "GameFramework/Actor.h"
 
 // Sets default values for this component's properties
@@ -31,6 +31,7 @@ void UHealthComponent::BeginPlay()
 void UHealthComponent::OnDeath()
 {
 	//make an on death event
+	OnDeathDelegate.Broadcast();
 }
 
 // Called every frame
@@ -38,7 +39,7 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (GetWorld()->GetTimerManager().IsTimerActive(RegenDelayHandle) == false && CurrentHealth < MaxHealth)
+	if (GetWorld()->GetTimerManager().IsTimerActive(RegenDelayHandle) == false && CurrentHealth < MaxHealth && CanRegen)
 	{
 		CurrentHealth = FMath::Clamp(CurrentHealth + (RegenPerSecond * DeltaTime), 0.0f, MaxHealth);
 	}
@@ -53,6 +54,7 @@ void UHealthComponent::TakeDamage(AActor* DamagedActor, float Damage, const clas
 
 	//make this more complicated when its actually used
 	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.f, MaxHealth);
+	OnDamageDelegate.Broadcast();
 
 	GetWorld()->GetTimerManager().SetTimer(RegenDelayHandle, nullptr, RegenDelay, false);
 

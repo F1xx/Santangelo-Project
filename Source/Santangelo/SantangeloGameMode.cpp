@@ -3,7 +3,6 @@
 #include "SantangeloGameMode.h"
 #include "SantangeloHUD.h"
 #include "UObject/ConstructorHelpers.h"
-#include "SAPlayer.h"
 
 ASantangeloGameMode::ASantangeloGameMode()
 	: Super()
