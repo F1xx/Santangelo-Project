@@ -63,6 +63,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BASESETTINGS)
 		float TimeToEffect = 0.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BASESETTINGS, meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+		float ChanceOfEffecting = 0.0f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BASESETTINGS)
 		TEnumAsByte<EffectType> Type = EffectType::NONE_EFFECT;
 
