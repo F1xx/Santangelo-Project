@@ -3,6 +3,7 @@
 
 #include "Components/Health/HealthComponent.h"
 #include "GameFramework/Actor.h"
+#include "Components/Effects/HealthEffects.h"
 
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
@@ -19,6 +20,7 @@ UHealthComponent::UHealthComponent()
 void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	EffectsStruct = new HealthEffects();
 
 	AActor* Owner = GetOwner();
 
@@ -34,14 +36,34 @@ void UHealthComponent::OnDeath()
 	OnDeathDelegate.Broadcast();
 }
 
+void UHealthComponent::CheckHealth()
+{
+	if (!IsAlive())
+	{
+		OnDeath();
+	}
+}
+
 // Called every frame
 void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (((HealthEffects*)EffectsStruct)->HealthDamagePerSecond != 0.0f)
+	{
+		TakeDamage(GetOwner(), ((HealthEffects*)EffectsStruct)->HealthDamagePerSecond * DeltaTime, nullptr, nullptr, nullptr);
+	}
+
 	if (GetWorld()->GetTimerManager().IsTimerActive(RegenDelayHandle) == false && CurrentHealth < MaxHealth && CanRegen)
 	{
-		CurrentHealth = FMath::Clamp(CurrentHealth + (RegenPerSecond * DeltaTime), 0.0f, MaxHealth);
+		//innate healing
+		HealNoEvent(RegenPerSecond * DeltaTime);
+
+		//healing buffs/effects
+		if (((HealthEffects*)EffectsStruct)->HealthRegenPerSecond != 0.0f)
+		{
+			HealNoEvent(((HealthEffects*)EffectsStruct)->HealthRegenPerSecond * DeltaTime);
+		}
 	}
 }
 
@@ -58,9 +80,16 @@ void UHealthComponent::TakeDamage(AActor* DamagedActor, float Damage, const clas
 
 	GetWorld()->GetTimerManager().SetTimer(RegenDelayHandle, nullptr, RegenDelay, false);
 
+	CheckHealth();
+}
 
-	if (!IsAlive())
-	{
-		OnDeath();
-	}
+void UHealthComponent::Heal(float amount)
+{
+	CurrentHealth = FMath::Clamp(CurrentHealth + amount, 0.0f, MaxHealth);
+	OnHealDelegate.Broadcast();
+}
+
+void UHealthComponent::HealNoEvent(float amount)
+{
+	CurrentHealth = FMath::Clamp(CurrentHealth + amount, 0.0f, MaxHealth);
 }

@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Components/Effect.h"
-#include "Components/BuffDebuffSystem.h"
+#include "Components/Effects/Effect.h"
+#include "Components/Effects/BuffDebuffSystem.h"
 #include "Characters/SAPlayer.h"
 #include "Components/Health/HealthComponent.h"
 #include "Components/Stamina/StaminaComponent.h"
@@ -72,8 +72,16 @@ void UEffect::SetupExitConditions()
 			}
 			break;
 		case EndConditions::HEALING_EC:
+			if (player)
+			{
+				player->GetHealthComponent()->OnHealDelegate.AddDynamic(this, &UEffect::QueueSelfForRemoval);
+			}
 			break;
 		case EndConditions::OUTOFSTAMINA_EC:
+			if (player)
+			{
+				player->GetStaminaComponent()->OnStaminaDrainedDelegate.AddDynamic(this, &UEffect::QueueSelfForRemoval);
+			}
 			break;
 		default:
 			break;
@@ -96,8 +104,16 @@ void UEffect::RemoveDelegates()
 			}
 			break;
 		case EndConditions::HEALING_EC:
+			if (player)
+			{
+				player->GetHealthComponent()->OnHealDelegate.RemoveDynamic(this, &UEffect::QueueSelfForRemoval);
+			}
 			break;
 		case EndConditions::OUTOFSTAMINA_EC:
+			if (player)
+			{
+				player->GetStaminaComponent()->OnStaminaDrainedDelegate.RemoveDynamic(this, &UEffect::QueueSelfForRemoval);
+			}
 			break;
 		default:
 			break;

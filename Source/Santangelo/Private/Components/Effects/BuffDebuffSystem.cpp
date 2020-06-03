@@ -1,16 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Components/BuffDebuffSystem.h"
-#include "Components/Effect.h"
+#include "Components/Effects/BuffDebuffSystem.h"
+#include "Components/Effects/Effect.h"
+#include "Components/Effects/StaminaEffects.h"
 
 // Sets default values for this component's properties
 UBuffDebuffSystem::UBuffDebuffSystem()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
 }
 
 
@@ -32,13 +30,14 @@ void UBuffDebuffSystem::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	//handle all effects
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Effects: %d"), m_Effects.Num()));
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("To Remove: %d"), m_EffectsToRemove.Num()));
-
+	//GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Effects: %d"), m_Effects.Num()));
+	//GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("To Remove: %d"), m_EffectsToRemove.Num()));
 
 	//Handle memory management
 	HandleMemoryManagement();
 }
+
+#pragma region Memory Management
 
 void UBuffDebuffSystem::HandleMemoryManagement()
 {
@@ -103,3 +102,4 @@ void UBuffDebuffSystem::ClearEffects()
 		QueueForRemoval(eff);
 	}
 }
+#pragma endregion

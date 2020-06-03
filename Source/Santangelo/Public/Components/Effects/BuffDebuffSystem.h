@@ -39,7 +39,6 @@ public:
 
 	FORCEINLINE const TArray<class UEffect*>& GetAllEffects() { return m_Effects; }
 
-
 protected:
 	TArray<class UEffect*> m_Effects;
 

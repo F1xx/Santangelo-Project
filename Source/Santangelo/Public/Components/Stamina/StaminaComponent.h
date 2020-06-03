@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Components/Effects/EffectableComponent.h"
 #include "StaminaComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStaminaDrainedDelegate);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class SANTANGELO_API UStaminaComponent : public UActorComponent
+class SANTANGELO_API UStaminaComponent : public UEffectableComponent
 {
 	GENERATED_BODY()
 
@@ -22,6 +24,7 @@ protected:
 	float GetCostAfterWeight(float baseCost);
 
 	bool CheckAndConsumeStamina(float cost);
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -38,6 +41,10 @@ public:
 		FORCEINLINE float GetCurrentStamina() { return CurrentStamina; }
 	UFUNCTION(BlueprintCallable)
 		FORCEINLINE float GetStaminaPercent() { return CurrentStamina / MaxStamina; }
+
+	//uses the stamina whether it has enough or not. Returns true if it had enough, false if not.
+	//This means if a jump costs 15 and you have 10 you will still jump but false will be returned
+	//Broadcasts the drained event if out of stamina
 	bool UseStamina(float amount);
 
 	float GetCurrentRegenRate();
@@ -56,6 +63,10 @@ public:
 	bool HasEnoughStamina(float amountNeeded);
 
 	bool IsStaminaDepleted();
+
+public:
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+		FStaminaDrainedDelegate OnStaminaDrainedDelegate;
 
 protected:
 	float MaxStamina = 100.0f;

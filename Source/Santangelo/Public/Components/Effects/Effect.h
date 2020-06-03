@@ -54,7 +54,6 @@ protected:
 
 	virtual class UWorld* GetWorld() const override;
 
-
 public:
 #pragma region BASE UNIVERSAL SETTINGS
 	//if this is true none of its effects will be applied
@@ -75,14 +74,26 @@ public:
 #pragma endregion
 
 #pragma region Health Settings
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
+		float HealthRegenPerSecond = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
+		float HealthDamagePerSecond = 0.0f;
 
 #pragma endregion
 
 #pragma region Stamina Settings
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stamina)
+		float StaminaRegenPerSecond = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stamina)
+		float StaminaDamagePerSecond = 0.0f;
 
 #pragma endregion
 
 #pragma region Movement Settings
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
+		float MoveSpeedMod = 0.0f;
 
 #pragma endregion
 

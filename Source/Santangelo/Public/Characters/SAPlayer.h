@@ -93,6 +93,7 @@ protected:
 		float DodgeStrength;
 
 	float BaseWalkSpeed = 1000.0f;
+	float DefaultWalkSpeed;
 
 
 public:

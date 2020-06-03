@@ -8,8 +8,8 @@
 
 #include "Components/Stamina/StaminaComponent.h"
 #include "Components/Health/HealthComponent.h"
-#include "Components/BuffDebuffSystem.h"
-#include "Components/Effect.h"
+#include "Components/Effects/BuffDebuffSystem.h"
+#include "Components/Effects/Effect.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -43,10 +43,8 @@ ASAPlayer::ASAPlayer() :
 
 	UCharacterMovementComponent* moveComp = GetCharacterMovement();
 	BaseWalkSpeed = moveComp->MaxWalkSpeed;
-	//moveComp->bOrientRotationToMovement = true;
-	//moveComp->AirControl = 0.1f;
-	//moveComp->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
-
+	DefaultWalkSpeed = BaseWalkSpeed;
+	moveComp->AirControl = 0.1f;
 
 	StaminaComp = CreateDefaultSubobject<UStaminaComponent>(TEXT("StaminaComp"));
 
@@ -156,7 +154,7 @@ void ASAPlayer::Jump()
 	if (StaminaComp->Jump())
 	{
 		
-		EffectSystem->QueueForAddition(DuplicateObject(effecttoadd->GetDefaultObject<UEffect>(), EffectSystem, "Effect"));
+		//EffectSystem->QueueForAddition(DuplicateObject(effecttoadd->GetDefaultObject<UEffect>(), EffectSystem, "Effect"));
 
 		Super::Jump();
 	}

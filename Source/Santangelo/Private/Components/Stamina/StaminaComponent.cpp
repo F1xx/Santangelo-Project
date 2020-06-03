@@ -1,8 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Components/Stamina/StaminaComponent.h"
+#include "Components/Effects/StaminaEffects.h"
+#include "Components/Effects//BuffDebuffSystem.h"
 #include "Equipment/BaseEquipment.h"
+#include "Characters/SAPlayer.h"
 
 // Sets default values for this component's properties
 UStaminaComponent::UStaminaComponent()
@@ -10,11 +12,12 @@ UStaminaComponent::UStaminaComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-
 // Called when the game starts
 void UStaminaComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	EffectsStruct = new StaminaEffects();
 }
 
 
@@ -59,16 +62,21 @@ void UStaminaComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 		//GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Sprinting")));
 	}
 
-	if (IsStaminaDepleted())
+	//If there is any StaminaDamagePerSecond debuff on us then consume it
+	if (((StaminaEffects*)EffectsStruct)->StaminaDamagePerSecond != 0.0f)
 	{
-		//turn off any progressive stamina users (sprint for example)
-		//StopSprinting();
+		UseStamina(((StaminaEffects*)EffectsStruct)->StaminaDamagePerSecond * DeltaTime);
 	}
 
 	//regen stamina
 	if (CurrentStamina < MaxStamina && GetWorld()->GetTimerManager().IsTimerActive(RegenDelayHandle) == false)
 	{
 		CurrentStamina = FMath::Clamp(CurrentStamina + GetCurrentRegenRate() * DeltaTime, 0.0f, MaxStamina);
+
+		if (((StaminaEffects*)EffectsStruct)->StaminaRegenPerSecond != 0.0f)
+		{
+			CurrentStamina = FMath::Clamp(CurrentStamina + ((StaminaEffects*)EffectsStruct)->StaminaRegenPerSecond * DeltaTime, 0.0f, MaxStamina);
+		}
 	}
 }
 
@@ -90,9 +98,13 @@ bool UStaminaComponent::UseStamina(float amount)
 	bool hasEnough = HasEnoughStamina(amount);
 
 	//check debuffs?
-
 	CurrentStamina = FMath::Clamp(CurrentStamina - amount, 0.0f, MaxStamina);
 	GetWorld()->GetTimerManager().SetTimer(RegenDelayHandle, nullptr, RegenDelay, false);
+
+	if (hasEnough == false)
+	{
+		OnStaminaDrainedDelegate.Broadcast();
+	}
 
 	return hasEnough;
 }
