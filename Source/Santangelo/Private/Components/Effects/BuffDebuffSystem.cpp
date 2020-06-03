@@ -87,13 +87,14 @@ void UBuffDebuffSystem::QueueForAddition(UEffect* effect)
 	{
 		//Check if it actually gets applied based on its chance
 		float randomnum = FMath::FRandRange(0.0001f, 1.0f);
-		if (randomnum > effect->ChanceOfEffecting)
+
+		float chance = effect->RandomChance ? FMath::FRandRange(0.0f, 1.0f) : effect->ChanceOfEffecting;
+
+		if (randomnum > chance)
 		{
 			//don't add it if the chance didn't work out
 			return;
 		}
-
-
 
 		int index = m_EffectsToAdd.AddUnique(effect);
 

@@ -67,6 +67,9 @@ public:
 		float ChanceOfEffecting = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BASESETTINGS)
+		bool RandomChance = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BASESETTINGS)
 		TEnumAsByte<EffectType> Type = EffectType::NONE_EFFECT;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BASESETTINGS)
