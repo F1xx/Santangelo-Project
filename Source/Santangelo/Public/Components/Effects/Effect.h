@@ -23,6 +23,7 @@ enum EndConditions
 	HEALING_EC			UMETA(DisplayName = "Get Healed"),
 	DAMAGETAKEN_EC		UMETA(DisplayName = "Take Damage"),
 	OUTOFSTAMINA_EC		UMETA(DisplayName = "Out of Stamina"),
+	DISPELLED_EC		UMETA(DisplayName = "Dispelled"),
 };
 
 UCLASS(Blueprintable)
