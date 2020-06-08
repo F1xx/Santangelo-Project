@@ -8,6 +8,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStaminaDrainedDelegate);
 
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SANTANGELO_API UStaminaComponent : public UEffectableComponent
 {
@@ -17,16 +18,6 @@ public:
 	// Sets default values for this component's properties
 	UStaminaComponent();
 
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-	float GetCostAfterWeight(float baseCost);
-
-	bool CheckAndConsumeStamina(float cost);
-
-public:	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	//Removes the old weight and adds the new. Useful for easily changing gear if the player swaps out a gear slot. Nullptrs are handled
@@ -63,6 +54,14 @@ public:
 	bool HasEnoughStamina(float amountNeeded);
 
 	bool IsStaminaDepleted();
+
+protected:
+	// Called when the game starts
+	virtual void BeginPlay() override;
+
+	float GetCostAfterWeight(float baseCost);
+
+	bool CheckAndConsumeStamina(float cost);
 
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Events")

@@ -12,6 +12,7 @@ struct SANTANGELO_API HealthEffects : BaseEffectStruct
 {
 	float HealthRegenPerSecond = 0.0f;
 	float HealthDamagePerSecond = 0.0f;
+	bool IsInvulnerable = false;
 
 	void UpdateStruct(TArray<UEffect*> effects) override
 	{
@@ -22,6 +23,7 @@ struct SANTANGELO_API HealthEffects : BaseEffectStruct
 		{
 			HealthDamagePerSecond += eff->HealthDamagePerSecond;
 			HealthRegenPerSecond += eff->HealthRegenPerSecond;
+			IsInvulnerable = eff->IsInvulnerable;
 		}
 	}
 };

@@ -32,6 +32,18 @@ float UEffect::GetPercentComplete()
 	return elapsed / TimeToEffect;
 }
 
+float UEffect::GetTimeRemaining()
+{
+	if (GetWorld()->GetTimerManager().IsTimerActive(EffectTimerHandle) == false)
+	{
+		return 0.0f;
+	}
+
+	float elapsed = GetWorld()->GetTimerManager().GetTimerElapsed(EffectTimerHandle);
+
+	return TimeToEffect - elapsed;
+}
+
 void UEffect::AddEffect(UBuffDebuffSystem* owner)
 {
 	SetOwningSystem(owner);

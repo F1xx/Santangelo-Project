@@ -30,7 +30,7 @@ void UBuffDebuffSystem::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	//handle all effects
-	//GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Effects: %d"), m_Effects.Num()));
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Effects: %d"), m_Effects.Num()));
 	//GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("To Remove: %d"), m_EffectsToRemove.Num()));
 
 	//Handle memory management

@@ -37,7 +37,8 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	FORCEINLINE const TArray<class UEffect*>& GetAllEffects() { return m_Effects; }
+	UFUNCTION(BlueprintCallable)
+		FORCEINLINE TArray<class UEffect*>& GetAllEffects() { return m_Effects; }
 
 protected:
 	TArray<class UEffect*> m_Effects;

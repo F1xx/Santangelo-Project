@@ -2,6 +2,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Components/Effects/EffectableComponent.h"
+
 #include "HealthComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDamageDelegate);

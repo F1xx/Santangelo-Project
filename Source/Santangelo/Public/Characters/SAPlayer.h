@@ -64,6 +64,9 @@ public:
 		float BaseLookUpRate;
 
 protected:
+
+#pragma region Components
+
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FPCameraComponent;
@@ -71,8 +74,6 @@ protected:
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USkeletalMeshComponent* ArmsMeshFP;
-
-	FTimerHandle DodgeCooldownHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stamina)
 		class UStaminaComponent* StaminaComp;
@@ -82,6 +83,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Effects)
 		class UBuffDebuffSystem* EffectSystem;
+
+#pragma endregion
+
+	FTimerHandle DodgeCooldownHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stamina)
 		float DodgeCooldown = 1.5f;
@@ -95,6 +100,8 @@ protected:
 	float BaseWalkSpeed = 1000.0f;
 	float DefaultWalkSpeed;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Effects)
+		TSubclassOf<class UEffect> DodgeInvincibilityEffect;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Effects)

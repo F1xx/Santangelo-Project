@@ -37,14 +37,17 @@ public:
 	UEffect(const UEffect* eff);
 
 	//returns how much the effect has completed from 0 to 1
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		float GetPercentComplete();
+
+	UFUNCTION(BlueprintCallable)
+		float GetTimeRemaining();
 
 	FORCEINLINE void SetOwningSystem(class UBuffDebuffSystem* sys) { m_OwningSystem = sys; }
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void AddEffect(UBuffDebuffSystem* owner);
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void QueueSelfForRemoval();
 	UFUNCTION()
 		void RemoveEffect();
@@ -61,10 +64,13 @@ public:
 	bool IsTerminating = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BASESETTINGS)
+		class UTexture2D* EffectSprite;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BASESETTINGS)
 		float TimeToEffect = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BASESETTINGS, meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
-		float ChanceOfEffecting = 0.0f;
+		float ChanceOfEffecting = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BASESETTINGS)
 		bool RandomChance = false;
@@ -86,6 +92,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
 		float HealthDamagePerSecond = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
+		bool IsInvulnerable = false;
 
 #pragma endregion
 

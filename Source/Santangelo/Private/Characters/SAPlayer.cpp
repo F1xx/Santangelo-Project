@@ -40,7 +40,6 @@ ASAPlayer::ASAPlayer() :
 	ArmsMeshFP->SetRelativeRotation(FRotator(1.9f, -19.19f, 5.2f));
 	ArmsMeshFP->SetRelativeLocation(FVector(-0.5f, -4.4f, -155.7f));
 
-
 	UCharacterMovementComponent* moveComp = GetCharacterMovement();
 	BaseWalkSpeed = moveComp->MaxWalkSpeed;
 	DefaultWalkSpeed = BaseWalkSpeed;
@@ -119,7 +118,7 @@ void ASAPlayer::MoveForward(float Val)
 		}
 
 		// add movement in that direction
-		//scale the Val for sprinting
+		//Val can only be -1 - 1.
 		AddMovementInput(GetActorForwardVector(), Val);
 	}
 }
@@ -154,7 +153,7 @@ void ASAPlayer::Jump()
 	if (StaminaComp->Jump())
 	{
 		
-		//EffectSystem->QueueForAddition(DuplicateObject(effecttoadd->GetDefaultObject<UEffect>(), EffectSystem, "Effect"));
+		EffectSystem->QueueForAddition(DuplicateObject(effecttoadd->GetDefaultObject<UEffect>(), EffectSystem, "Effect"));
 
 		Super::Jump();
 	}
@@ -202,6 +201,9 @@ void ASAPlayer::Dodge()
 
 	//add impulse
 	GetCharacterMovement()->AddImpulse(V);
+
+	//Add Invincibility
+	EffectSystem->QueueForAddition(DuplicateObject(DodgeInvincibilityEffect->GetDefaultObject<UEffect>(), EffectSystem, "DodgeInvincibility"));
 
 	//start cooldown (should cooldown be linked to animation? Should cooldown be related to weight?)
 	GetWorld()->GetTimerManager().SetTimer(DodgeCooldownHandle, nullptr, DodgeCooldown, false);
